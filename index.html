@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Weather App</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-sA+e2V1Ppz4h8ry2kzIJ4B1Vx3uwBExuP3y4E1xxbCE="
+      crossorigin=""
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <!-- HEADER -->
+    <header class="grid">
+      <!-- Top Navigation -->
+      <nav class="s-12 grid background-none background-primary-hightlight">
+         <!-- logo -->
+         <a href="index.html" class="m-12 l-3 padding-2x logo">
+         </a>
+         <div class="top-nav s-12 l-9"> 
+            <ul class="top-ul right chevron">
+        <li><a class="PROSPER" href="http://www.zrdc.org">ZRDC</a></li>
+        <li><a href="http://www.icuzambia.net">ICU Zambia</a></li>
+         <li><a href="#title">HOME</a></li>
+            </ul>
+         </div>
+      </nav>
+    </header>
+    <div class="container">
+      <!-- Weather Card -->
+      <div class="card">
+        <em><h1 class="title">WEATHER APP</h1></em>
+        <div class="search">
+          <input
+            type="text"
+            placeholder="Enter city name"
+            spellcheck="false"
+          />
+          <button><img src="images/search.png" alt="Search" /></button>
+        </div>
+        <div class="error">
+          <p>Invalid city name</p>
+        </div>
+        <div class="weather">
+          <img src="images/rain.png" alt="weather icon" class="weather-icon" />
+          <h1 class="temp">20°C</h1>
+          <h2 class="city">New York</h2>
+          <div class="details">
+            <div class="col">
+              <img src="images/humidity.png" alt="humidity icon" />
+              <div>
+                <p class="humidity">50%</p>
+                <p>Humidity</p>
+              </div>
+            </div>
+            <div class="col">
+              <img src="images/wind.png" alt="wind icon" />
+              <div>
+                <p class="wind">15 KM/H</p>
+                <p>Wind Speed</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="footer">
+        </div>
+      </div>
+
+      <!-- Current Weather Details -->
+      <div class="card current-weather-details">
+        <em><h2 class="title">WEATHER FORECAST</h2></em>
+        <div>
+          <h3>Location</h3>
+          <p>Lusaka</p>
+        </div>
+        <div>
+          <h3>Temperature</h3>
+          <p>23.9°C</p>
+        </div>
+        <div>
+          <h3>Humidity</h3>
+          <p>25%</p>
+        </div>
+        <div>
+          <h3>Wind Speed</h3>
+          <p>11.9 kph</p>
+        </div>
+        <div>
+          <h3>Condition</h3>
+          <p>Clear</p>
+        </div>
+        <div>
+          <h3>Region</h3>
+          <p>Lusaka</p>
+        </div>
+        <div>
+          <h3>Country</h3>
+          <p>Zambia</p>
+        </div>
+        <div>
+          <h3>Longitude</h3>
+          <p>28.311552</p>
+        </div>
+        <div>
+          <h3>Latitude</h3>
+          <p>-15.4206208</p>
+        </div>
+      </div>
+    <!-- Leaflet JS -->
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-o9N1jzQ+eaM7Z3j5nVbNLtZ0HoW7G2MXpzv+M+30kmo="
+      crossorigin=""
+    ></script>
+
+    <script>
+      // Weather API Configuration
+      const apiKey = "312abfd953c970ceaf81f671079f6e22";
+      const apiUrl =
+        "https://api.openweathermap.org/data/2.5/weather?units=metric&q=";
+
+      const searchBox = document.querySelector(".search input");
+      const searchBtn = document.querySelector(".search button");
+      const weatherIcon = document.querySelector(".weather-icon");
+
+      async function checkWeather(city) {
+        if (!city) return;
+        const response = await fetch(apiUrl + city + `&appid=${apiKey}`);
+        if (response.status == 404) {
+          document.querySelector(".error").style.display = "block";
+          document.querySelector(".weather").style.display = "none";
+          document.querySelector(".current-weather-details").style.display =
+            "none";
+        } else {
+          const data = await response.json();
+          document.querySelector(".city").innerHTML = data.name;
+          document.querySelector(".temp").innerHTML =
+            Math.round(data.main.temp) + "°C";
+          document.querySelector(".humidity").innerHTML =
+            data.main.humidity + "%";
+          document.querySelector(".wind").innerHTML =
+            data.wind.speed + " km/h";
+
+          // Update Current Weather Details
+          const details = document.querySelectorAll(".current-weather-details p");
+          details[0].innerHTML = data.name;
+          details[1].innerHTML = `${data.main.temp}°C`;
+          details[2].innerHTML = `${data.main.humidity}%`;
+          details[3].innerHTML = `${data.wind.speed} kph`;
+          details[4].innerHTML = data.weather[0].main;
+          details[5].innerHTML = data.sys.region || "N/A";
+          details[6].innerHTML = data.sys.country;
+          details[7].innerHTML = data.coord.lon;
+          details[8].innerHTML = data.coord.lat;
+
+          // Update Weather Icon
+          const weatherMain = data.weather[0].main;
+          switch (weatherMain) {
+            case "Clouds":
+              weatherIcon.src = "images/clouds.png";
+              break;
+            case "Clear":
+              weatherIcon.src = "images/clear.png";
+              break;
+            case "Rain":
+              weatherIcon.src = "images/rain.png";
+              break;
+            case "Drizzle":
+              weatherIcon.src = "images/drizzle.png";
+              break;
+            case "Mist":
+              weatherIcon.src = "images/mist.png";
+              break;
+            case "Snow":
+              weatherIcon.src = "images/snow.png";
+              break;
+            default:
+              weatherIcon.src = "images/wind.png";
+          }
+
+          // Display Sections
+          document.querySelector(".weather").style.display = "block";
+          document.querySelector(".error").style.display = "none";
+          document.querySelector(".current-weather-details").style.display =
+            "flex";
+
+          // Update Map
+          updateMap(data.coord.lat, data.coord.lon);
+        }
+      }
+
+      searchBtn.addEventListener("click", () => {
+        checkWeather(searchBox.value);
+      });
+
+      searchBox.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+          checkWeather(searchBox.value);
+        }
+      });
+
+      // Initialize Map
+      let map = L.map("map").setView([-15.4206208, 28.311552], 10);
+
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution:
+          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      }).addTo(map);
+
+      let marker = L.marker([-15.4206208, 28.311552]).addTo(map);
+
+      function updateMap(lat, lon) {
+        map.setView([lat, lon], 10);
+        marker.setLatLng([lat, lon]);
+      }
+
+      // Initial Load
+      checkWeather("Lusaka");
+    </script>
+    <div>
+      <td align="middle"><span class="copyright">Soweto Ward . All Rights Reserved. Designed And
+        Maintained
+        By<br> CHISANGA PROSPER, SIN: 2206224006</td>
+    </div>
+  </body>
+</html>
+
